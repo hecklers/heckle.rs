@@ -1,4 +1,3 @@
-
 #![crate_type="dylib"]
 #![feature(plugin_registrar, rustc_private)]
 
@@ -14,12 +13,6 @@ use rustc::plugin::Registry;
 
 struct HelloWorldExpander;
 
-impl HelloWorldExpander {
-    fn new() -> HelloWorldExpander {
-        HelloWorldExpander
-    }
-}
-
 impl ItemModifier for HelloWorldExpander {
     fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
         item
@@ -28,8 +21,7 @@ impl ItemModifier for HelloWorldExpander {
 
 #[plugin_registrar]
 pub fn plugin_registrar(reg: &mut Registry) {
-    let expander = Modifier(Box::new(HelloWorldExpander::new()));
+    let expander = Modifier(Box::new(HelloWorldExpander));
     reg.register_syntax_extension(intern("hello_world"), expander);
 }
-
 

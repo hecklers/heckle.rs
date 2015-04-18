@@ -4,11 +4,42 @@ extern crate syntax;
 extern crate rustc;
 
 use syntax::ext::base::{ItemModifier, ExtCtxt, Modifier};
-use syntax::codemap::Span;
+use syntax::codemap::{Span, Spanned};
 use syntax::ptr::P;
-use syntax::ast::{Item, MetaItem};
+use syntax::ast::{Item, MetaItem, Expr, ExprLit, Lit, LitBool};
 use syntax::parse::token::intern;
+use syntax::fold::Folder;
 use rustc::plugin::Registry;
+
+struct InvertBooleanMutation;
+
+impl InvertBooleanMutation {
+    fn invert_boolean(&self, expr: P<Expr>) -> P<Expr> {
+        expr.map(|e| Expr {
+            id: e.id,
+            span: e.span,
+            node: match e.node {
+                ExprLit(lit) =>
+                    ExprLit(lit.map(|l|
+                        match l.node {
+                            LitBool(value) => Spanned {
+                                node: LitBool(!value),
+                                span: l.span
+                            },
+                            _ => l
+                        }
+                    )),
+                _ => e.node
+            }
+        })
+    }
+}
+
+impl Folder for InvertBooleanMutation {
+    fn fold_expr(&mut self, e: P<Expr>) -> P<Expr> {
+        self.invert_boolean(e)
+    }
+}
 
 struct HeckleExpander;
 

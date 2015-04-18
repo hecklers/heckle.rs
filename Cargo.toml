@@ -1,13 +1,10 @@
 [package]
 name = "heckle"
 version = "0.1.0"
-authors = ["Romain Ruetschi <romain.ruetschi@gmail.com>"]
+authors = ["Romain Ruetschi <romain.ruetschi@gmail.com>",
+           "Dimiter Petrov <crackofdusk@gmail.com>"]
 
 [lib]
 name = "heckle"
 path = "src/lib.rs"
-test = false
-
-# [[bin]]
-# name = "test"
-# path = "src/test.rs"
+crate_type = ["dylib"]

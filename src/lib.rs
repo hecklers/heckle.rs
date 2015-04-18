@@ -1,4 +1,3 @@
-#![crate_type="dylib"]
 #![feature(plugin_registrar, rustc_private)]
 
 extern crate syntax;
@@ -11,9 +10,9 @@ use syntax::ast::{Item, MetaItem};
 use syntax::parse::token::intern;
 use rustc::plugin::Registry;
 
-struct HelloWorldExpander;
+struct HeckleExpander;
 
-impl ItemModifier for HelloWorldExpander {
+impl ItemModifier for HeckleExpander {
     fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
         item
     }
@@ -21,7 +20,7 @@ impl ItemModifier for HelloWorldExpander {
 
 #[plugin_registrar]
 pub fn plugin_registrar(reg: &mut Registry) {
-    let expander = Modifier(Box::new(HelloWorldExpander));
-    reg.register_syntax_extension(intern("hello_world"), expander);
+    let expander = Modifier(Box::new(HeckleExpander));
+    reg.register_syntax_extension(intern("heckle"), expander);
 }
 

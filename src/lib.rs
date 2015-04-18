@@ -11,9 +11,23 @@ use syntax::parse::token::intern;
 use syntax::fold::Folder;
 use rustc::plugin::Registry;
 
-struct InvertBooleanMutation;
+trait Mutation<'a, 'b:'a> {
+    fn new(ecx: &'a mut ExtCtxt<'b>) -> Self;
+}
 
-impl InvertBooleanMutation {
+struct InvertBooleanMutation<'a, 'b:'a> {
+    ecx: &'a mut ExtCtxt<'b>
+}
+
+impl<'a, 'b:'a> Mutation<'a, 'b> for InvertBooleanMutation<'a, 'b> {
+    fn new(ecx: &'a mut ExtCtxt<'b>) -> Self {
+        InvertBooleanMutation {
+            ecx: ecx
+        }
+    }
+}
+
+impl<'a, 'b> InvertBooleanMutation<'a, 'b> {
     fn invert_boolean(&self, expr: P<Expr>) -> P<Expr> {
         expr.map(|e| Expr {
             id: e.id,
@@ -35,7 +49,7 @@ impl InvertBooleanMutation {
     }
 }
 
-impl Folder for InvertBooleanMutation {
+impl<'a, 'b> Folder for InvertBooleanMutation<'a, 'b> {
     fn fold_expr(&mut self, e: P<Expr>) -> P<Expr> {
         self.invert_boolean(e)
     }
@@ -45,7 +59,8 @@ struct HeckleExpander;
 
 impl ItemModifier for HeckleExpander {
     fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
-        item
+        let mut fld = InvertBooleanMutation::new(ecx);
+        fld.fold_item(item).pop().unwrap()
     }
 }
 

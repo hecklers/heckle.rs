@@ -10,7 +10,7 @@ use syntax::codemap::{Span, Spanned};
 use syntax::ptr::P;
 use syntax::ast::{Item, MetaItem, Expr, ExprLit, ExprIf, ExprWhile, ExprUnary, UnNot, Lit, LitBool, LitStr};
 use syntax::parse::token::intern;
-use syntax::fold::{Folder};
+use syntax::fold::{Folder, noop_fold_expr};
 use rustc::plugin::Registry;
 
 use rand::{thread_rng, Rng};
@@ -108,7 +108,10 @@ impl<'a, 'b:'a> Folder for InvertIfExprCondMutation<'a, 'b> {
                 quote_expr!(self.ecx, if !($cond) { $new_thn })
             }
 
-            _ => quote_expr!(self.ecx, $expr)
+            _ => {
+                let mut_expr = expr.map(|e| noop_fold_expr(e, self));
+                quote_expr!(self.ecx, $mut_expr)
+            }
         })
     }
 }
@@ -125,27 +128,25 @@ impl<'a, 'b:'a> Mutation<'a, 'b> for RandomStringMutation<'a, 'b> {
     }
 }
 
-impl<'a, 'b> RandomStringMutation<'a, 'b> {
-    fn mutate_string(&self, expr: P<Expr>) -> P<Expr> {
+impl<'a, 'b> Folder for RandomStringMutation<'a, 'b> {
+    fn fold_expr(&mut self, expr: P<Expr>) -> P<Expr> {
         let random_string: String = thread_rng().gen_ascii_chars().take(10).collect();
         let s = random_string.as_str();
 
-        match (*expr).node {
+        match expr.node {
             ExprLit(ref spanned) => match spanned.node {
                 LitStr(_, str_ty) => quote_expr!(self.ecx, $s),
-                _ => quote_expr!(self.ecx, $expr)
+                _ => {
+                    let mut_expr = expr.clone().map(|e| noop_fold_expr(e, self));
+                    quote_expr!(self.ecx, $mut_expr)
+                }
             },
 
-            _ => quote_expr!(self.ecx, $expr)
+            _ => {
+                let mut_expr = expr.clone().map(|e| noop_fold_expr(e, self));
+                quote_expr!(self.ecx, $mut_expr)
+            }
         }
-    }
-}
-
-
-
-impl<'a, 'b> Folder for RandomStringMutation<'a, 'b> {
-    fn fold_expr(&mut self, e: P<Expr>) -> P<Expr> {
-        self.mutate_string(e)
     }
 }
 

@@ -8,7 +8,7 @@ pub mod heckled_primitives {
     }
 
     pub fn if_expr() -> u32 {
-        if (true) {
+        if true {
             666
         } else {
             42
@@ -20,7 +20,7 @@ pub mod heckled_primitives {
     }
 
     pub fn while_expr() -> u32 {
-        while (true) {
+        while true {
             return 13
         }
 

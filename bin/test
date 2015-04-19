@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
+clear
+
 MUTATIONS=(invert_boolean random_string invert_while_cond invert_if_cond)
+b_cyan='\033[1;36m'
+no_color='\033[0m'
 
 for mutation in "${MUTATIONS[@]}"; do
-    echo "Current mutation: ${mutation}"
+    echo; echo -e ${b_cyan}" ♦ Current Mutation : ${mutation} ♦" ${no_color}
+    echo
     cargo clean
     HECKLE_MUTATION=$mutation cargo test
     if [ $? -eq 0 ]; then

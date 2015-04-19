@@ -1,0 +1,9 @@
+[package]
+name = "example"
+version = "0.0.1"
+
+[[bin]]
+name = "example"
+
+[dependencies.heckle]
+path = ".."

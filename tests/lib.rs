@@ -1,6 +1,6 @@
 #![feature(plugin)]
+#![plugin(heckle)]
 
-#[plugin(heckle)]
 fn boolean() -> bool {
     false
 }

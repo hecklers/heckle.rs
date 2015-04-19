@@ -8,3 +8,6 @@ authors = ["Romain Ruetschi <romain.ruetschi@gmail.com>",
 [lib]
 name = "heckle"
 plugin = true
+
+[dependencies]
+rand = "0.3.7"

@@ -2,25 +2,38 @@
 #![plugin(heckle)]
 
 #[heckle]
-fn boolean() -> bool {
-    false
+pub mod heckled_primitives {
+    pub fn boolean() -> bool {
+        false
+    }
+
+    pub fn if_expr() -> u32 {
+        if (true) {
+            666
+        } else {
+            42
+        }
+    }
+
+    pub fn string() -> &'static str {
+        "foo"
+    }
+
 }
 
-#[heckle]
-fn if_expr() -> u32 {
-    if (true) {
-        666
-    } else {
-        42
-    }
-}
+use self::heckled_primitives::*;
 
 #[test]
-fn it_inverts_literal_booleans() {
+fn test_boolean_mutation() {
     assert!(boolean());
 }
 
 #[test]
-fn it_inverts_if_expr_condition() {
-    assert!(if_expr() == 42);
+fn test_if_expr_condition_mutation() {
+    assert_eq!(42, if_expr());
+}
+
+#[test]
+fn test_string_mutation() {
+    assert!(string() != "foo");
 }

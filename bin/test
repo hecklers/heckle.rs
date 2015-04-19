@@ -10,7 +10,7 @@ for mutation in "${MUTATIONS[@]}"; do
         echo
         echo
         echo
-        echo "Test results didn't change after mutaiton: ${mutation}!"
+        echo "Test results didn't change after mutation: ${mutation}!"
         echo
         echo
         echo

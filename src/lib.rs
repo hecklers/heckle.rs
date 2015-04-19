@@ -101,11 +101,11 @@ impl<'a, 'b:'a> Folder for InvertIfExprCondMutation<'a, 'b> {
             ExprIf(cond, thn, Some(els)) => {
                 let new_thn = self.fold_block(thn);
                 let new_els = self.fold_expr(els);
-                quote_expr!(self.ecx, if !$cond { $new_thn } else { $new_els })
+                quote_expr!(self.ecx, if !($cond) { $new_thn } else { $new_els })
             },
             ExprIf(cond, thn, None) => {
                 let new_thn = self.fold_block(thn);
-                quote_expr!(self.ecx, if !$cond { $new_thn })
+                quote_expr!(self.ecx, if !($cond) { $new_thn })
             }
 
             _ => quote_expr!(self.ecx, $expr)

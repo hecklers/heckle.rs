@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+MUTATIONS=(invert_boolean random_string invert_while_cond invert_if_cond)
+
+for mutation in "${MUTATIONS[@]}"; do
+    echo "Current mutation: ${mutation}"
+    cargo clean
+    HECKLE_MUTATION=$mutation cargo test
+    if [ $? -eq 0 ]; then
+        echo
+        echo
+        echo
+        echo "Test results didn't change after mutaiton: ${mutation}!"
+        echo
+        echo
+        echo
+    fi
+done

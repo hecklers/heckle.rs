@@ -25,11 +25,26 @@ pub fn plugin_registrar(reg: &mut Registry) {
 
 impl ItemModifier for HeckleExpander {
     fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
-        // let mut fld = InvertBooleanMutation::new(ecx);
-        // let mut fld = InvertIfExprCondMutation::new(ecx);
-        // let mut fld = RandomStringMutation::new(ecx);
-        let mut fld = InvertWhileExprCondMutation::new(ecx);
-        fld.fold_item(item).pop().unwrap()
+        let name = option_env!("HECKLE_MUTATION").unwrap_or("invert_boolean");
+        match name {
+            "invert_boolean" => {
+                let mut mutation = InvertBooleanMutation::new(ecx);
+                mutation.fold_item(item).pop().unwrap()
+            },
+            "random_string" => {
+                let mut mutation = RandomStringMutation::new(ecx);
+                mutation.fold_item(item).pop().unwrap()
+            },
+            "invert_while_cond" => {
+                let mut mutation = InvertWhileExprCondMutation::new(ecx);
+                mutation.fold_item(item).pop().unwrap()
+            },
+            "invert_if_cond" => {
+                let mut mutation = InvertIfExprCondMutation::new(ecx);
+                mutation.fold_item(item).pop().unwrap()
+            },
+            _ => item
+        }
     }
 }
 

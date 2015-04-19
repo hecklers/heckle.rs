@@ -19,6 +19,14 @@ pub mod heckled_primitives {
         "foo"
     }
 
+    pub fn while_expr() -> u32 {
+        while (true) {
+            return 13
+        }
+
+        42
+    }
+
 }
 
 use self::heckled_primitives::*;
@@ -36,4 +44,9 @@ fn test_if_expr_condition_mutation() {
 #[test]
 fn test_string_mutation() {
     assert!(string() != "foo");
+}
+
+#[test]
+fn test_while_expr_condition() {
+    assert!(while_expr() == 42);
 }

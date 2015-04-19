@@ -8,7 +8,7 @@ extern crate rand;
 use syntax::ext::base::{ItemModifier, ExtCtxt, Modifier};
 use syntax::codemap::{Span, Spanned};
 use syntax::ptr::P;
-use syntax::ast::{Item, MetaItem, Expr, ExprLit, ExprIf, ExprUnary, UnNot, Lit, LitBool, LitStr, Expr_};
+use syntax::ast::{Item, MetaItem, Expr, ExprLit, ExprIf, ExprWhile, ExprUnary, UnNot, Lit, LitBool, LitStr};
 use syntax::parse::token::intern;
 use syntax::fold::{Folder};
 use rustc::plugin::Registry;
@@ -27,7 +27,8 @@ impl ItemModifier for HeckleExpander {
     fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
         // let mut fld = InvertBooleanMutation::new(ecx);
         // let mut fld = InvertIfExprCondMutation::new(ecx);
-        let mut fld = RandomStringMutation::new(ecx);
+        // let mut fld = RandomStringMutation::new(ecx);
+        let mut fld = InvertWhileExprCondMutation::new(ecx);
         fld.fold_item(item).pop().unwrap()
     }
 }
@@ -130,5 +131,27 @@ impl<'a, 'b> RandomStringMutation<'a, 'b> {
 impl<'a, 'b> Folder for RandomStringMutation<'a, 'b> {
     fn fold_expr(&mut self, e: P<Expr>) -> P<Expr> {
         self.mutate_string(e)
+    }
+}
+
+struct InvertWhileExprCondMutation<'a, 'b:'a> {
+    ecx: &'a mut ExtCtxt<'b>
+}
+
+impl<'a, 'b:'a> Mutation<'a,'b> for InvertWhileExprCondMutation<'a, 'b> {
+    fn new(ecx: &'a mut ExtCtxt<'b>) -> Self {
+        InvertWhileExprCondMutation { ecx: ecx }
+    }
+}
+
+impl<'a, 'b> Folder for InvertWhileExprCondMutation<'a, 'b> {
+    fn fold_expr(&mut self, expr: P<Expr>) -> P<Expr> {
+        expr.clone().and_then(|e| match e.node {
+            ExprWhile(cond, block, None) => {
+                let new_block = self.fold_block(block);
+                quote_expr!(self.ecx, while !$cond { $new_block })
+            },
+            _ => quote_expr!(self.ecx, $expr)
+        })
     }
 }

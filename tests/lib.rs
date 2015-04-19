@@ -1,6 +1,7 @@
-#![feature(plugin)]
+#![feature(custom_attribute, plugin)]
 #![plugin(heckle)]
 
+#[heckle]
 fn boolean() -> bool {
     false
 }

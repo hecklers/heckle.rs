@@ -2,9 +2,9 @@
 name = "heckle"
 version = "0.1.0"
 authors = ["Romain Ruetschi <romain.ruetschi@gmail.com>",
-           "Dimiter Petrov <crackofdusk@gmail.com>"]
+           "Dimiter Petrov <crackofdusk@gmail.com>",
+           "Dylan Bourgeois <dylan.bourgeois@epfl.ch>"]
 
 [lib]
 name = "heckle"
-path = "src/lib.rs"
-crate_type = ["dylib"]
+plugin = true

@@ -1,4 +1,4 @@
-#![feature(plugin_registrar, rustc_private)]
+#![feature(quote, plugin_registrar, rustc_private, custom_attributes, plugin)]
 
 extern crate syntax;
 extern crate rustc;
@@ -10,6 +10,21 @@ use syntax::ast::{Item, MetaItem, Expr, ExprLit, Lit, LitBool};
 use syntax::parse::token::intern;
 use syntax::fold::Folder;
 use rustc::plugin::Registry;
+
+struct HeckleExpander;
+
+impl ItemModifier for HeckleExpander {
+    fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
+        let mut fld = InvertBooleanMutation::new(ecx);
+        fld.fold_item(item).pop().unwrap()
+    }
+}
+
+#[plugin_registrar]
+pub fn plugin_registrar(reg: &mut Registry) {
+    let expander = Modifier(Box::new(HeckleExpander));
+    reg.register_syntax_extension(intern("heckle"), expander);
+}
 
 trait Mutation<'a, 'b:'a> {
     fn new(ecx: &'a mut ExtCtxt<'b>) -> Self;
@@ -54,19 +69,3 @@ impl<'a, 'b> Folder for InvertBooleanMutation<'a, 'b> {
         self.invert_boolean(e)
     }
 }
-
-struct HeckleExpander;
-
-impl ItemModifier for HeckleExpander {
-    fn expand(&self, ecx: &mut ExtCtxt, span: Span, meta_item: &MetaItem, item: P<Item>) -> P<Item> {
-        let mut fld = InvertBooleanMutation::new(ecx);
-        fld.fold_item(item).pop().unwrap()
-    }
-}
-
-#[plugin_registrar]
-pub fn plugin_registrar(reg: &mut Registry) {
-    let expander = Modifier(Box::new(HeckleExpander));
-    reg.register_syntax_extension(intern("heckle"), expander);
-}
-
